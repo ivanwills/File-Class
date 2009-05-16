@@ -6,3 +6,13 @@ lib/File/Class.pm
 t/00-load.t
 t/pod-coverage.t
 t/pod.t
+t/critic.t
+t/perlcriticrc
+t/kwalitee.t
+t/new.t
+t/operations.t
+t/spelling.t
+Makefile.PL
+META.yml
+MANIFEST.SKIP
+LICENSE
