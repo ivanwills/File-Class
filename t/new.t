@@ -4,9 +4,10 @@ BEGIN { $ENV{TESTING} = 1 }
 
 use strict;
 use warnings;
-use Test::More tests => 7 + 1;
+use Test::More tests => 10 + 1;
 use Test::NoWarnings;
 use Test::Exception;
+use File::Spec;
 
 use File::Class;
 
@@ -18,10 +19,16 @@ is_deeply( $file->{file}, [qw/home ivan bin/], 'All the directories are stored c
 $file = File::Class->new("/home/ivan/bin");
 is( "$file", "/home/ivan/bin", 'That the outputted file matches the inputted one' );
 
-$file = File::Class->new([qw/home ivan bin/]);
+$file = File::Class->new([qw/home ivan bin/])->absolute(1);
 is( "$file", "/home/ivan/bin", 'That the outputted file matches the inputted one' );
 
 $file = File::Class->new($file);
 is( "$file", "/home/ivan/bin", 'That the outputted file matches the inputted one' );
 
 dies_ok { File::Class->new({ file => 'bin' }) } 'Dies when it doesn\'t known what to do';
+
+# Relative files
+$file = File::Class->new('.');
+ok( !$file->{absolute}, 'Check that the file is not an absolute file' );
+is( "$file", '.', ' The file doesn\'t include leading /');
+is( $file->absolute, File::Spec->rel2abs(File::Spec->curdir), 'We get the full path of the current dir' );

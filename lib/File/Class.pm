@@ -9,7 +9,7 @@ package File::Class;
 use strict;
 use warnings;
 use version;
-use Carp;
+use Carp qw/carp croak cluck confess/;
 use Scalar::Util qw/blessed/;
 use Data::Dumper qw/Dumper/;
 use English qw/ -no_match_vars /;
@@ -27,24 +27,34 @@ our %EXPORT_TAGS = ();
 sub new {
 	my ($class, $file) = @_;
 	my $self  = {};
+	my %option = ref $file eq 'HASH' ? %{$file} : ();
+	if (%option) {
+		$file = pop @_;
+	}
 
 	bless $self, $class;
 
 	if ( ref $file eq 'ARRAY' ) {
 		my ($volume, $dir, $file_name) = File::Spec->splitpath( File::Spec->catfile(@{ $file }) );
-		$self->{volume} = $volume;
-		$self->{file}   = [ grep {$_} File::Spec->splitdir($dir) ];
+		$self->{volume}   = $volume;
+		$self->{absolute} = $option{abs};
+		$self->{file}     = [ grep {$_} File::Spec->splitdir($dir) ];
 		push @{ $self->{file} }, $file_name if $file_name;
+		$self->{base}     = $self->{absolute} ? "$self" : $option{base} || File::Spec->curdir();
 	}
 	elsif ( blessed $file && $file->isa($class) ) {
-		$self->{volume} = $file->{volume};
-		$self->{file}   = $file->{file};
+		$self->{volume}   = $file->{volume};
+		$self->{absolute} = $file->{absolute};
+		$self->{file}     = $file->{file};
+		$self->{base}     = $file->{base};
 	}
 	elsif ( !ref $file ) {
 		my ($volume, $dir, $file_name) = File::Spec->splitpath($file);
-		$self->{volume} = $volume;
-		$self->{file}   = [ grep {$_} File::Spec->splitdir($dir) ];
+		$self->{volume}   = $volume;
+		$self->{absolute} = $file =~ m{^/};
+		$self->{file}     = [ grep {$_} File::Spec->splitdir($dir) ];
 		push @{ $self->{file} }, $file_name if $file_name;
+		$self->{base}     = $self->{absolute} ? "$self" : $option{base} || File::Spec->curdir();
 	}
 	else {
 		croak "Unknown path $file";
@@ -53,17 +63,35 @@ sub new {
 	return $self;
 }
 
+sub cwd {
+	my ($self) = @_;
+
+	return $self->new( File::Spec->curdir );
+}
+
 sub to_string {
 	my ($self) = @_;
 
-	return File::Spec->catfile( $self->{volume}, @{ $self->{file} } );
+	return
+		$self->{absolute} ? File::Spec->catfile( $self->{volume}, @{ $self->{file} } )
+		:                   File::Spec->catfile( @{ $self->{file} } );
+}
+
+sub absolute {
+	my ($self, $set) = @_;
+
+	if (defined $set) {
+		$self->{absolute} = $set;
+	}
+
+	return $self->{absolute} ? $self : File::Class->new( File::Spec->rel2abs( "$self", $self->{base} ) );
 }
 
 sub up {
 	my ( $self, $num ) = @_;
 	$num ||= 1;
 
-	my $new_file = clone $self;
+	my $new_file = $self->{absolute} ? clone $self : File::Class->new( File::Spec->rel2abs( "$self", $self->{base} ) );
 
 	for (1 .. $num) {
 		pop @{ $new_file->{file} };
@@ -113,7 +141,7 @@ sub is_file {
 sub does_exist {
 	my ($self) = @_;
 
-	return -f "$self";
+	return -e "$self";
 }
 
 1;
@@ -150,6 +178,8 @@ This documentation refers to File::Class version 0.1.
 
 =head1 SUBROUTINES/METHODS
 
+=head2 Class Methods
+
 =head3 C<new ( $search, )>
 
 Param: C<$search> - type (detail) - description
@@ -158,11 +188,28 @@ Return: File::Class -
 
 Description:
 
+=head3 C<cwd ()>
+
+Return File::Class - Object representing the current working directory
+
+Description: Creates a new object representing the current working directory
+
+=head2 Object Methods
+
 =head3 C<to_string ()>
 
 Return: string - The string version of the file
 
 Description: Stringifies the file.
+
+=head3 C<absolute ($set)>
+
+Param: C<$set> - bool - Set the absolute parameter to the value of $set
+
+Return: File::Class - The absolute version of this file
+
+Description: Converts a relative file to an absolute one or just returns the
+absolute version if already an absolute file.
 
 =head3 C<up ([$num])>
 
