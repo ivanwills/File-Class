@@ -12,6 +12,7 @@ t/kwalitee.t
 t/new.t
 t/operations.t
 t/spelling.t
+example/file-class-usage.pl
 Makefile.PL
 META.yml
 MANIFEST.SKIP
