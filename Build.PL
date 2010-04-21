@@ -3,11 +3,11 @@ use warnings;
 use Module::Build;
 
 my $builder = Module::Build->new(
-	module_name         => 'File::Class',
-	license             => 'perl',
-	dist_author         => 'Ivan Wills <ivan.wills@gmail.com>',
-	dist_version_from   => 'lib/File/Class.pm',
-	requires            => {
+	module_name       => 'File::Class',
+	license           => 'perl',
+	dist_author       => 'Ivan Wills <ivan.wills@gmail.com>',
+	dist_version_from => 'lib/File/Class.pm',
+	requires          => {
 		'version'      => 0,
 		'Carp'         => 0,
 		'Scalar::Util' => 0,

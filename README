@@ -11,15 +11,14 @@ can use it to get an idea of the module's uses. It is usually a good idea
 to provide version information here so that people can decide whether
 fixes for the module are worth downloading.
 
-
 INSTALLATION
 
 To install this module, run the following commands:
 
-	perl Build.PL
-	./Build
-	./Build test
-	./Build install
+    perl Build.PL
+    ./Build
+    ./Build test
+    ./Build install
 
 SUPPORT AND DOCUMENTATION
 
@@ -42,11 +41,16 @@ You can also look for information at:
     Search CPAN
         http://search.cpan.org/dist/File-Class/
 
+    Source Code
+        git://github.com/ivanwills/File-Class.git
 
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2009 Ivan Wills
 
 This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
 
