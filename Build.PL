@@ -24,6 +24,12 @@ my $builder = Module::Build->new(
 	add_to_cleanup     => [ 'File-Class-*' ],
 	create_makefile_pl => 'traditional',
 	create_license     => 1,
+	meta_merge         => {
+		resources => {
+			repository => 'http://github.com/ivanwills/File-Class',
+			bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=File-Class',
+		},
+	},
 );
 
 $builder->create_build_script();
